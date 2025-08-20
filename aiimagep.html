@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 이미지 프롬프트 생성기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100">
+
+    <div id="app-container"></div>
+
+    <script type="module">
+        // --- DATA CONSTANTS ---
+        const EMPTY_SELECT_OPTION = { value: "", label: "선택 안함" };
+
+        const IMAGE_STYLES = [
+            EMPTY_SELECT_OPTION,
+            { value: "photorealistic", label: "사진처럼 (Photorealistic)" },
+            { value: "oil_painting", label: "유화 (Oil Painting)" },
+            { value: "watercolor", label: "수채화 (Watercolor)" },
+            { value: "sketch", label: "스케치 (Sketch)" },
+            { value: "charcoal_drawing", label: "목탄화 (Charcoal)" },
+            { value: "3d_render", label: "3D 렌더 (3D Render)" },
+            { value: "anime", label: "애니메이션 (Anime)" },
+            { value: "manga", label: "만화 (Manga)" },
+            { value: "pixel_art", label: "픽셀 아트 (Pixel Art)" },
+            { value: "isometric", label: "아이소메트릭 (Isometric)" },
+            { value: "abstract", label: "추상화 (Abstract)" },
+            { value: "surreal", label: "초현실주의 (Surreal)" },
+            { value: "impressionistic", label: "인상주의 (Impressionistic)" },
+            { value: "cyberpunk", label: "사이버펑크 (Cyberpunk)" },
+            { value: "steampunk", label: "스팀펑크 (Steampunk)" },
+            { value: "fantasy_art", label: "판타지 아트 (Fantasy Art)" },
+            { value: "concept_art", label: "콘셉트 아트 (Concept Art)" },
+        ];
+
+        const IMAGE_ASPECT_RATIOS = [
+            EMPTY_SELECT_OPTION,
+            { value: "1:1", label: "1:1 (정사각형)" },
+            { value: "16:9", label: "16:9 (와이드스크린)" },
+            { value: "9:16", label: "9:16 (세로)" },
+            { value: "4:3", label: "4:3 (표준)" },
+            { value: "3:2", label: "3:2 (사진)" },
+        ];
+
+        const IMAGE_RESOLUTIONS = [
+            EMPTY_SELECT_OPTION,
+            { value: "highly detailed", label: "매우 상세하게 (Highly Detailed)" },
+            { value: "ultra realistic", label: "초현실적 화질 (Ultra Realistic)" },
+            { value: "8k resolution", label: "8K 해상도 (8K Resolution)" },
+            { value: "wallpaper quality", label: "배경화면 품질 (Wallpaper Quality)" },
+            { value: "sharp focus", label: "선명한 초점 (Sharp Focus)" },
+        ];
+
+        const IMAGE_COLOR_PALETTES = [
+            EMPTY_SELECT_OPTION,
+            { value: "vibrant", label: "선명한 색상 (Vibrant)" },
+            { value: "muted_colors", label: "차분한 색상 (Muted Colors)" },
+            { value: "monochrome", label: "단색 (Monochrome)" },
+            { value: "black_and_white", label: "흑백 (Black and White)" },
+            { value: "pastel", label: "파스텔 톤 (Pastel)" },
+            { value: "warm_tones", label: "따뜻한 톤 (Warm Tones)" },
+            { value: "cool_tones", label: "차가운 톤 (Cool Tones)" },
+            { value: "neon_colors", label: "네온 색상 (Neon Colors)" },
+        ];
+
+        const IMAGE_LIGHTING_CONDITIONS = [
+            EMPTY_SELECT_OPTION,
+            { value: "studio_light", label: "스튜디오 조명 (Studio Light)" },
+            { value: "natural_light", label: "자연광 (Natural Light)" },
+            { value: "golden_hour", label: "골든 아워 (Golden Hour)" },
+            { value: "blue_hour", label: "블루 아워 (Blue Hour)" },
+            { value: "backlit", label: "역광 (Backlit)" },
+            { value: "moody_lighting", label: "분위기 있는 조명 (Moody Lighting)" },
+            { value: "cinematic_lighting", label: "영화 같은 조명 (Cinematic Lighting)" },
+            { value: "dramatic_lighting", label: "극적인 조명 (Dramatic Lighting)" },
+        ];
+
+        const IMAGE_COMPOSITIONS = [
+            EMPTY_SELECT_OPTION,
+            { value: "close_up", label: "클로즈업 (Close-up)" },
+            { value: "medium_shot", label: "미디엄 샷 (Medium Shot)" },
+            { value: "full_shot", label: "풀 샷 (Full Shot)" },
+            { value: "wide_shot", label: "와이드 샷 (Wide Shot)" },
+            { value: "portrait", label: "인물 사진 (Portrait)" },
+            { value: "landscape", label: "풍경 사진 (Landscape)" },
+            { value: "rule_of_thirds", label: "삼분할 구도 (Rule of Thirds)" },
+            { value: "symmetry", label: "대칭 구도 (Symmetry)" },
+        ];
+
+        const IMAGE_DETAIL_LEVELS = [
+            EMPTY_SELECT_OPTION,
+            { value: "low_detail", label: "낮은 디테일 (Low Detail)" },
+            { value: "medium_detail", label: "중간 디테일 (Medium Detail)" },
+            { value: "high_detail", label: "높은 디테일 (High Detail)" },
+            { value: "hyperrealistic_detail", label: "초현실적 디테일 (Hyperrealistic Detail)" },
+            { value: "intricate_details", label: "복잡한 디테일 (Intricate Details)" },
+        ];
+
+        // --- ICONS (as string templates) ---
+        const ICONS = {
+            photo: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>`,
+            sparkles: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L1.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L22.5 5.25l-.813 2.846a4.5 4.5 0 0 0-3.09 3.09L15.75 12l2.846.813a4.5 4.5 0 0 0 3.09 3.09L22.5 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09Z" /></svg>`,
+            loading: `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`,
+            clipboard: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>`
+        };
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            imageParams: {
+                prompt: "",
+                negativePrompt: "",
+                style: "photorealistic",
+                artistStyle: "",
+                aspectRatio: "1:1",
+                resolution: "highly detailed",
+                colorPalette: "",
+                lighting: "",
+                composition: "",
+                detailLevel: "",
+            }
+        };
+
+        // --- UTILITY FUNCTIONS ---
+        const getSelectOptionLabel = (options, value) => {
+            return options.find(opt => opt.value === value)?.label || value;
+        };
+
+        const buildComprehensiveKoreanPrompt = (baseText, params) => {
+            const mainPromptText = baseText.trim();
+            const allParamsEmpty = Object.entries(params).every(([key, value]) => {
+                if (key === 'prompt' || key === 'negativePrompt') return true;
+                if (typeof value === 'string') return !value.trim();
+                return !value;
+            });
+
+            if (!mainPromptText && allParamsEmpty) return "";
+
+            let promptSegments = [];
+            if (mainPromptText) promptSegments.push(mainPromptText);
+
+            const p = params;
+            if (p.style) promptSegments.push(`${getSelectOptionLabel(IMAGE_STYLES, p.style)} 스타일`);
+            if (p.artistStyle && p.artistStyle.trim()) promptSegments.push(`아티스트 ${p.artistStyle.trim()} 화풍`);
+            if (p.aspectRatio) promptSegments.push(`${p.aspectRatio} 화면 비율`);
+            if (p.resolution) promptSegments.push(`${getSelectOptionLabel(IMAGE_RESOLUTIONS, p.resolution)} 화질`);
+            if (p.colorPalette) promptSegments.push(`${getSelectOptionLabel(IMAGE_COLOR_PALETTES, p.colorPalette)} 색상 팔레트`);
+            if (p.lighting) promptSegments.push(`${getSelectOptionLabel(IMAGE_LIGHTING_CONDITIONS, p.lighting)} 조명`);
+            if (p.composition) promptSegments.push(`${getSelectOptionLabel(IMAGE_COMPOSITIONS, p.composition)} 구도`);
+            if (p.detailLevel) promptSegments.push(`${getSelectOptionLabel(IMAGE_DETAIL_LEVELS, p.detailLevel)} 디테일 수준`);
+            
+            let descriptiveCore = promptSegments.join(', ');
+            let finalPrompt = descriptiveCore;
+
+            if (params.negativePrompt && params.negativePrompt.trim()) {
+                finalPrompt += (finalPrompt ? ". " : "") + `제외할 것: "${params.negativePrompt.trim()}"`;
+            }
+
+            if (finalPrompt && !finalPrompt.endsWith('.') && !finalPrompt.endsWith('?')) {
+                finalPrompt += ".";
+            }
+            return finalPrompt.trim();
+        };
+
+        const buildComprehensiveEnglishPrompt = (baseText, params) => {
+            const mainPromptText = baseText.trim();
+            const allParamsEmpty = Object.entries(params).every(([key, value]) => {
+                if (key === 'prompt' || key === 'negativePrompt') return true;
+                if (typeof value === 'string') return !value.trim();
+                return !value;
+            });
+
+            if (!mainPromptText && allParamsEmpty) return "";
+
+            let promptSegments = [];
+            if (mainPromptText) promptSegments.push(mainPromptText);
+
+            const p = params;
+            if (p.style) promptSegments.push(p.style.replace(/_/g, ' '));
+            if (p.artistStyle && p.artistStyle.trim()) promptSegments.push(`by ${p.artistStyle.trim()}`);
+            if (p.resolution) promptSegments.push(p.resolution);
+            if (p.colorPalette) promptSegments.push(p.colorPalette.replace(/_/g, ' '));
+            if (p.lighting) promptSegments.push(p.lighting.replace(/_/g, ' '));
+            if (p.composition) promptSegments.push(p.composition.replace(/_/g, ' '));
+            if (p.detailLevel) promptSegments.push(p.detailLevel.replace(/_/g, ' '));
+            
+            let finalPrompt = promptSegments.join(', ');
+
+            if (p.aspectRatio) finalPrompt += ` --ar ${p.aspectRatio}`;
+            if (p.negativePrompt && p.negativePrompt.trim()) finalPrompt += ` --no ${p.negativePrompt.trim()}`;
+
+            return finalPrompt.trim();
+        };
+
+        // --- RENDER FUNCTIONS ---
+        const render = () => {
+            const appContainer = document.getElementById('app-container');
+            appContainer.innerHTML = `
+                <div class="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 selection:bg-sky-500 selection:text-white">
+                    <header class="w-full max-w-5xl mb-8 text-center">
+                        <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-500 mb-2">
+                            AI 이미지 프롬프트 생성기
+                        </h1>
+                        <p class="text-slate-400 text-lg">
+                            AI 이미지 생성을 위한 이미지 프롬프트를 만들어보세요.
+                        </p>
+                    </header>
+                    
+                    <main class="w-full max-w-5xl">
+                        ${renderForm()}
+                    </main>
+                </div>
+            `;
+            addEventListeners();
+        };
+
+        const renderForm = () => {
+            const p = state.imageParams;
+            return `
+                <div class="p-6 md:p-8 bg-slate-800 rounded-xl shadow-2xl w-full">
+                    <h2 class="text-xl font-semibold text-sky-400 mb-4 flex items-center"><span class="mr-2">${ICONS.photo}</span>Imagen 프롬프트 생성기</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                        ${renderTextInput('프롬프트 (한국어 또는 영어)', 'prompt', p.prompt, '예: 숲속을 거니는 동양인 여성의 뒷모습', true, '생성하고 싶은 이미지의 핵심 내용을 입력하세요.')}
+                        ${renderTextInput('제외할 것 (Negative Prompt)', 'negativePrompt', p.negativePrompt, '예: 저화질, 배경, 못생긴 얼굴', true, '이미지에서 제외하고 싶은 것들을 입력하세요.')}
+                    </div>
+
+                    <h2 class="text-xl font-semibold text-sky-400 mb-4 mt-6 flex items-center">세부 설정</h2>
+                    
+                    <div class="space-y-6">
+                        ${renderPillSelector('스타일', 'style', IMAGE_STYLES, p.style)}
+                        ${renderTextInput('특정 아티스트 스타일', 'artistStyle', p.artistStyle, '예: 지브리, 반 고흐, 웹툰, 애니메이션 (선택 사항)', false, '원하는 아티스트나 화풍을 지정하여 스타일을 만들어 보세요.')}
+                        ${renderPillSelector('화면 비율', 'aspectRatio', IMAGE_ASPECT_RATIOS, p.aspectRatio)}
+                        ${renderPillSelector('해상도/화질', 'resolution', IMAGE_RESOLUTIONS, p.resolution, '이미지의 선명도와 디테일 수준을 결정합니다.')}
+                        ${renderPillSelector('색상 팔레트', 'colorPalette', IMAGE_COLOR_PALETTES, p.colorPalette)}
+                        ${renderPillSelector('조명', 'lighting', IMAGE_LIGHTING_CONDITIONS, p.lighting)}
+                        ${renderPillSelector('구도', 'composition', IMAGE_COMPOSITIONS, p.composition)}
+                        ${renderPillSelector('디테일 수준', 'detailLevel', IMAGE_DETAIL_LEVELS, p.detailLevel)}
+                    </div>
+
+                    <div class="mt-8">
+                        <button id="generate-btn" class="flex-shrink-0 flex items-center justify-center px-8 py-3 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed">
+                            ${ICONS.sparkles}
+                            <span class="ml-2">프롬프트 생성</span>
+                        </button>
+                    </div>
+
+                    <div id="results-container" class="mt-8 space-y-4"></div>
+                </div>
+            `;
+        };
+
+        const renderTextInput = (label, id, value, placeholder, isTextArea, helpText) => `
+            <div class="mb-6">
+                <label for="${id}" class="block text-sm font-medium text-sky-300 mb-1">${label}</label>
+                ${isTextArea 
+                    ? `<textarea id="${id}" name="${id}" placeholder="${placeholder}" rows="4" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-150 ease-in-out placeholder-slate-400 text-slate-100">${value}</textarea>`
+                    : `<input type="text" id="${id}" name="${id}" value="${value}" placeholder="${placeholder}" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition duration-150 ease-in-out placeholder-slate-400 text-slate-100">`
+                }
+                ${helpText ? `<p class="mt-1 text-xs text-slate-400">${helpText}</p>` : ''}
+            </div>
+        `;
+
+        const renderPillSelector = (label, id, options, selectedValue, helpText) => `
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-sky-300 mb-2">${label}</label>
+                <div class="flex flex-wrap gap-2">
+                    ${options.map(option => `
+                        <button
+                            type="button"
+                            data-group="${id}"
+                            data-value="${option.value}"
+                            class="pill-btn px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-sky-500
+                                ${selectedValue === option.value 
+                                    ? 'bg-sky-600 text-white shadow-md' 
+                                    : 'bg-slate-600 text-slate-300 hover:bg-slate-500'
+                                }"
+                        >
+                            ${option.label}
+                        </button>
+                    `).join('')}
+                </div>
+                ${helpText ? `<p class="mt-2 text-xs text-slate-400">${helpText}</p>` : ''}
+            </div>
+        `;
+        
+        // --- EVENT HANDLING ---
+        const addEventListeners = () => {
+            // Text inputs
+            document.getElementById('prompt').addEventListener('input', handleInputChange);
+            document.getElementById('negativePrompt').addEventListener('input', handleInputChange);
+            document.getElementById('artistStyle').addEventListener('input', handleInputChange);
+
+            // Pill buttons
+            document.querySelectorAll('.pill-btn').forEach(btn => {
+                btn.addEventListener('click', handlePillClick);
+            });
+
+            // Generate button
+            document.getElementById('generate-btn').addEventListener('click', handleGenerateClick);
+            
+            updateGenerateButtonState();
+        };
+
+        const handleInputChange = (e) => {
+            state.imageParams[e.target.name] = e.target.value;
+            if(e.target.name === 'prompt') {
+                 document.getElementById('results-container').innerHTML = '';
+            }
+            updateGenerateButtonState();
+        };
+
+        const handlePillClick = (e) => {
+            const btn = e.currentTarget;
+            const group = btn.dataset.group;
+            const value = btn.dataset.value;
+
+            state.imageParams[group] = value;
+            
+            // Update UI for the clicked group
+            document.querySelectorAll(`.pill-btn[data-group="${group}"]`).forEach(b => {
+                b.classList.remove('bg-sky-600', 'text-white', 'shadow-md');
+                b.classList.add('bg-slate-600', 'text-slate-300', 'hover:bg-slate-500');
+            });
+            btn.classList.add('bg-sky-600', 'text-white', 'shadow-md');
+            btn.classList.remove('bg-slate-600', 'text-slate-300', 'hover:bg-slate-500');
+
+            document.getElementById('results-container').innerHTML = '';
+            updateGenerateButtonState();
+        };
+
+        const updateGenerateButtonState = () => {
+            const btn = document.getElementById('generate-btn');
+            if (state.imageParams.prompt.trim()) {
+                btn.disabled = false;
+                btn.title = "";
+            } else {
+                btn.disabled = true;
+                btn.title = "프롬프트를 먼저 입력해주세요.";
+            }
+        };
+
+        const handleGenerateClick = () => {
+            const btn = document.getElementById('generate-btn');
+            const resultsContainer = document.getElementById('results-container');
+            
+            btn.disabled = true;
+            btn.innerHTML = `${ICONS.loading}<span class="ml-2">생성 중...</span>`;
+
+            setTimeout(() => {
+                const koreanPrompt = buildComprehensiveKoreanPrompt(state.imageParams.prompt, state.imageParams);
+                const englishPrompt = buildComprehensiveEnglishPrompt(state.imageParams.prompt, state.imageParams);
+
+                resultsContainer.innerHTML = `
+                    <div class="p-4 bg-slate-700 rounded-lg shadow">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-sm font-semibold text-sky-300">생성된 프롬프트 (한국어)</h4>
+                            <button id="copy-korean-btn" class="px-3 py-1 text-xs bg-sky-700 hover:bg-sky-600 text-slate-200 rounded-md transition-colors duration-150 flex items-center">
+                                ${ICONS.clipboard} <span class="ml-1.5">복사</span>
+                            </button>
+                        </div>
+                        <p class="text-slate-200 whitespace-pre-wrap break-all bg-slate-900 p-3 rounded-md text-sm">${koreanPrompt}</p>
+                    </div>
+                    <div class="p-4 bg-slate-700 rounded-lg shadow">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-sm font-semibold text-sky-300">생성된 프롬프트 (영어)</h4>
+                            <button id="copy-english-btn" class="px-3 py-1 text-xs bg-sky-700 hover:bg-sky-600 text-slate-200 rounded-md transition-colors duration-150 flex items-center">
+                                ${ICONS.clipboard} <span class="ml-1.5">복사</span>
+                            </button>
+                        </div>
+                        <p class="text-slate-200 whitespace-pre-wrap break-all bg-slate-900 p-3 rounded-md text-sm">${englishPrompt}</p>
+                    </div>
+                `;
+                
+                document.getElementById('copy-korean-btn').addEventListener('click', () => handleCopy(koreanPrompt, 'copy-korean-btn'));
+                document.getElementById('copy-english-btn').addEventListener('click', () => handleCopy(englishPrompt, 'copy-english-btn'));
+
+                btn.innerHTML = `${ICONS.sparkles}<span class="ml-2">프롬프트 생성</span>`;
+                updateGenerateButtonState();
+            }, 500);
+        };
+
+        const handleCopy = async (textToCopy, btnId) => {
+            if (!textToCopy) return;
+            const btn = document.getElementById(btnId);
+            const originalText = btn.innerHTML;
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                btn.innerHTML = `${ICONS.clipboard} <span class="ml-1.5">복사됨!</span>`;
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                btn.innerHTML = 'Copy Failed';
+                 setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }
+        };
+
+        // --- INITIALIZE ---
+        document.addEventListener('DOMContentLoaded', render);
+
+    </script>
+</body>
+</html>
