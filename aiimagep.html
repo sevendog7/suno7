@@ -227,14 +227,14 @@
             const p = state.imageParams;
             return `
                 <div class="p-6 md:p-8 bg-slate-800 rounded-xl shadow-2xl w-full">
-                    <h2 class="text-xl font-semibold text-sky-400 mb-4 flex items-center"><span class="mr-2">${ICONS.photo}</span>Imagen 프롬프트 생성기</h2>
+                    <h2 class="text-xl font-semibold text-sky-400 mb-4 flex items-center"><span class="mr-2">${ICONS.photo}</span>AI이미지 프롬프트 생성기</h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                        ${renderTextInput('프롬프트 (한국어 또는 영어)', 'prompt', p.prompt, '예: 숲속을 거니는 동양인 여성의 뒷모습', true, '생성하고 싶은 이미지의 핵심 내용을 입력하세요.')}
-                        ${renderTextInput('제외할 것 (Negative Prompt)', 'negativePrompt', p.negativePrompt, '예: 저화질, 배경, 못생긴 얼굴', true, '이미지에서 제외하고 싶은 것들을 입력하세요.')}
+                        ${renderTextInput('생성할 이미지의 핵심 내용 (한국어 또는 영어)', 'prompt', p.prompt, '예: 숲속을 거니는 동양인 여성의 뒷모습', true, '핵심 내용은 자세할수록 좋아요')}
+                        ${renderTextInput('제외할 것', 'negativePrompt', p.negativePrompt, '예: 저화질, 배경, 못생긴 얼굴', true, '입력하지 않아도 됩니다')}
                     </div>
 
-                    <h2 class="text-xl font-semibold text-sky-400 mb-4 mt-6 flex items-center">세부 설정</h2>
+                    <h2 class="text-xl font-semibold text-sky-400 mb-4 mt-6 flex items-center">이미지 세부 설정</h2>
                     
                     <div class="space-y-6">
                         ${renderPillSelector('스타일', 'style', IMAGE_STYLES, p.style)}
@@ -414,3 +414,4 @@
     </script>
 </body>
 </html>
+
