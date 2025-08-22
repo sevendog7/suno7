@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sora & Veo 영상 프롬프트 생성기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .pill {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #4b5563;
+        }
+        .pill.selected {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+            transform: scale(1.05);
+        }
+        /* 스크롤바 스타일 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* 로딩 스피너 */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .section-card {
+            background-color: #1f2937; /* bg-gray-800 */
+            border-radius: 1.5rem; /* rounded-2xl */
+            padding: 2rem; /* p-8 */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .section-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1.5rem; /* mb-6 */
+            color: #818cf8; /* text-indigo-400 */
+            display: flex;
+            align-items: center;
+        }
+        .section-title .number {
+            background-color: #4f46e5;
+            color: white;
+            border-radius: 9999px;
+            width: 2rem;
+            height: 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+        /* Custom message box for copy feedback */
+        #copy-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2dd4bf; /* teal-400 */
+            color: black;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            pointer-events: none;
+        }
+        #copy-message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-20px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-2">Sora & Veo 프롬프트 생성기</h1>
+            <p class="text-lg text-gray-400">차세대 AI 영상 모델을 위한 시네마틱 프롬프트 설계 툴</p>
+        </header>
+
+        <!-- Section 1: API Key & Core Concept -->
+        <div class="section-card">
+            <h2 class="section-title"><span class="number">1</span>API 키 및 핵심 컨셉 정의</h2>
+            <div class="space-y-6">
+                 <div>
+                    <label for="api-key-input" class="block mb-2 text-sm font-medium text-gray-300">Google AI Studio API 키</label>
+                    <input type="password" id="api-key-input" class="w-full bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5" placeholder="여기에 API 키를 입력하세요.">
+                    <p class="mt-2 text-xs text-gray-500">번역 기능을 사용하려면 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-indigo-400 hover:underline">Google AI Studio</a>에서 발급받은 API 키가 필요합니다.</p>
+                </div>
+                <div>
+                    <label for="character-sheet" class="block mb-2 text-sm font-medium text-gray-300">영상에 등장할 핵심 캐릭터 또는 피사체</label>
+                    <textarea id="character-sheet" rows="4" class="w-full bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5" placeholder="예: 스타일리시한 트렌치코트를 입은 젊은 여성 탐정, 날카로운 눈빛으로 무언가 골똘히 생각하고 있다."></textarea>
+                    <p class="mt-2 text-xs text-gray-500">캐릭터의 외모, 의상, 분위기 등 일관성을 유지할 핵심 요소를 상세히 기입하세요.</p>
+                </div>
+                <div>
+                    <label for="total-cuts" class="block mb-2 text-sm font-medium text-gray-300">생성할 총 장면 수 (Number of Scenes)</label>
+                    <input type="number" id="total-cuts" min="1" max="10" value="1" class="w-full bg-gray-700 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: 상세 장면 묘사 -->
+        <div class="section-card">
+            <h2 class="section-title"><span class="number">2</span>상세 장면 묘사</h2>
+            <p class="text-gray-400 text-sm mb-4">Sora, Veo와 같은 모델은 자연어 문장을 깊이 이해합니다. 각 장면을 하나의 이야기처럼 최대한 상세하고 구체적으로 묘사해주세요.</p>
+            <div id="storyboard-container" class="mt-6 space-y-6">
+                <!-- Storyboard scenes will be injected here -->
+            </div>
+        </div>
+
+        <!-- Section 3: 시네마틱 스타일 추가 -->
+        <div class="section-card">
+            <h2 class="section-title"><span class="number">3</span>시네마틱 스타일 추가</h2>
+            <div id="look-and-feel-container" class="space-y-6">
+                <!-- Pills will be injected here -->
+            </div>
+        </div>
+        
+        <!-- Action Button -->
+        <div class="text-center my-8">
+            <button id="generate-btn" onclick="generatePrompts()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-lg transition-colors text-lg flex items-center justify-center w-full md:w-auto mx-auto">
+                <span id="btn-text">최종 프롬프트 생성하기</span>
+                <div id="btn-loader" class="loader hidden ml-3"></div>
+            </button>
+        </div>
+
+        <!-- Section 4: 최종 프롬프트 확인 -->
+        <div id="result-section" class="section-card hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="section-title"><span class="number">4</span>최종 결과물</h2>
+                <button id="copy-btn" onclick="copyTextPromptsToClipboard()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">전체 복사</button>
+            </div>
+            <h3 class="text-xl font-semibold text-indigo-300 mb-2">✍️ 최종 영상 프롬프트 (영문)</h3>
+            <p class="text-sm text-gray-400 mb-4">입력하신 내용과 선택하신 키워드를 조합하여 최종 생성된 영문 프롬프트입니다.</p>
+            <div id="text-output" class="bg-gray-900 rounded-lg p-4 space-y-4">
+                <!-- Text prompts will be injected here -->
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="resetAll()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">처음부터 다시 작성</button>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Powered by Gemini. Designed for Next-Gen Video AI.</p>
+        </footer>
+    </div>
+    
+    <div id="copy-message">클립보드에 복사되었습니다!</div>
+
+    <script>
+        const appState = {
+            lookAndFeel: {}
+        };
+
+        const lookAndFeelOptions = {
+            "영상 품질 (Video Quality)": [
+                { en: "hyperrealistic, 8k, ultra detailed", ko: "극사실적, 8K, 고화질" },
+                { en: "photorealistic, sharp focus", ko: "사진같은, 선명한 초점" },
+                { en: "cinematic, shot on 35mm film", ko: "시네마틱, 35mm 필름룩" },
+                { en: "Unreal Engine 5 render, CGI, VFX", ko: "언리얼 엔진 5 렌더" }
+            ],
+            "카메라 워크 (Camera Work)": [
+                { en: "Static shot", ko: "정적 샷" },
+                { en: "Panning shot", ko: "패닝" },
+                { en: "Tilting shot", ko: "틸트" },
+                { en: "Zoom in", ko: "줌인" },
+                { en: "Zoom out", ko: "줌아웃" },
+                { en: "Dolly shot", ko: "달리 샷" },
+                { en: "Crane shot", ko: "크레인 샷" },
+                { en: "First-person view", ko: "1인칭 시점" },
+                { en: "Drone shot", ko: "드론 샷" }
+            ],
+            "색상 및 조명 (Color & Lighting)": [
+                { en: "Studio Light", ko: "스튜디오 조명" },
+                { en: "Natural Light", ko: "자연광" },
+                { en: "Golden Hour", ko: "골든 아워" },
+                { en: "Blue Hour", ko: "블루 아워" },
+                { en: "Backlit", ko: "역광" },
+                { en: "Moody Lighting", ko: "분위기 있는 조명" },
+                { en: "Cinematic Lighting", ko: "영화적 조명" },
+                { en: "Dramatic Lighting", ko: "극적인 조명" },
+                { en: "Soft Light", ko: "부드러운 조명" },
+                { en: "Hard Light", ko: "강한 조명" },
+                { en: "Rim Lighting", ko: "윤곽 조명" },
+                { en: "Volumetric Lighting", ko: "볼륨 조명" },
+                { en: "Night Lighting", ko: "야간 조명" }
+            ],
+            "디테일 수준 (Detail Level)": [
+                { en: "Low Detail", ko: "낮은 디테일" },
+                { en: "Medium Detail", ko: "중간 디테일" },
+                { en: "High Detail", ko: "높은 디테일" },
+                { en: "Hyperrealistic Detail", ko: "초현실적 디테일" },
+                { en: "Intricate Details", ko: "정교한 디테일" }
+            ]
+        };
+
+        function initializeLookAndFeel() {
+            const container = document.getElementById('look-and-feel-container');
+            container.innerHTML = '';
+            Object.keys(lookAndFeelOptions).forEach(category => {
+                const categoryDiv = document.createElement('div');
+                const title = document.createElement('h3');
+                title.className = "text-md font-medium text-gray-300 mb-3";
+                title.textContent = category;
+                categoryDiv.appendChild(title);
+
+                const pillContainer = document.createElement('div');
+                pillContainer.className = "flex flex-wrap gap-2";
+                
+                lookAndFeelOptions[category].forEach(option => {
+                    const pill = document.createElement('span');
+                    pill.className = "pill py-1.5 px-4 rounded-full text-sm font-medium";
+                    pill.textContent = `${option.ko} (${option.en})`;
+                    pill.dataset.category = category;
+                    pill.dataset.valueEn = option.en;
+                    pill.onclick = () => togglePill(pill);
+                    pillContainer.appendChild(pill);
+                });
+                categoryDiv.appendChild(pillContainer);
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        function togglePill(pillElement) {
+            pillElement.classList.toggle('selected');
+            const category = pillElement.dataset.category;
+            const value = pillElement.dataset.valueEn;
+
+            if (!appState.lookAndFeel[category]) {
+                appState.lookAndFeel[category] = new Set();
+            }
+
+            if (pillElement.classList.contains('selected')) {
+                appState.lookAndFeel[category].add(value);
+            } else {
+                appState.lookAndFeel[category].delete(value);
+            }
+        }
+
+        function createStoryboard(totalCuts) {
+            const container = document.getElementById('storyboard-container');
+            container.innerHTML = '';
+            for (let i = 1; i <= totalCuts; i++) {
+                const sceneHTML = `
+                    <div class="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                        <label for="scene-${i}-description" class="block font-semibold text-lg mb-2 text-indigo-300">Scene #${i} 상세 묘사</label>
+                        <textarea id="scene-${i}-description" rows="8" class="w-full bg-gray-600 border-gray-500 text-sm rounded-md p-2" placeholder="예: 비가 내리는 밤, 네온사인이 번쩍이는 미래 도시의 뒷골목. 주인공 탐정이 어두운 골목 끝에서 나타나는 미스터리한 인물을 발견하고 조심스럽게 뒤를 쫓기 시작한다. 바닥의 물웅덩이에 화려한 네온 불빛이 반사된다."></textarea>
+                    </div>
+                `;
+                container.innerHTML += sceneHTML;
+            }
+        }
+
+        async function translateKoreanToEnglish(text) {
+            const userApiKey = document.getElementById('api-key-input').value;
+
+            if (!userApiKey) {
+                showCopyMessage("API 키를 입력해주세요.", false);
+                throw new Error("API key is missing.");
+            }
+
+            if (!text || !/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(text)) {
+                return text;
+            }
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${userApiKey}`;
+            
+            const prompt = `Translate the following Korean text to English for a cinematic video prompt. The translation should be descriptive, natural, and suitable for an AI image/video generator. Just provide the translated English text directly without any introductory phrases.\n\nKorean: "${text}"\n\nEnglish:`;
+
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    if (response.status === 400) {
+                        showCopyMessage("API 키가 유효하지 않습니다. 확인 후 다시 시도해주세요.", false);
+                    } else {
+                        showCopyMessage(`API 호출 실패: ${response.status}`, false);
+                    }
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    return result.candidates[0].content.parts[0].text.trim();
+                }
+                return text;
+            } catch (error) {
+                console.error("Translation error:", error);
+                if (!error.message.includes("API call failed")) {
+                     showCopyMessage("번역 중 네트워크 오류가 발생했습니다.", false);
+                }
+                throw error;
+            }
+        }
+
+        async function generatePrompts() {
+            const generateBtn = document.getElementById('generate-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            const resultSection = document.getElementById('result-section');
+
+            btnText.textContent = '생성 중...';
+            btnLoader.classList.remove('hidden');
+            generateBtn.disabled = true;
+
+            try {
+                const textOutputContainer = document.getElementById('text-output');
+                textOutputContainer.innerHTML = '';
+                
+                const characterPrompt = document.getElementById('character-sheet').value;
+                const translatedCharacterPrompt = await translateKoreanToEnglish(characterPrompt);
+
+                const allLookKeywords = Object.values(appState.lookAndFeel)
+                    .flatMap(set => Array.from(set))
+                    .join(', ');
+                
+                const totalCuts = parseInt(document.getElementById('total-cuts').value, 10);
+                for (let i = 1; i <= totalCuts; i++) {
+                    let sceneDescription = document.getElementById(`scene-${i}-description`).value;
+                    const translatedSceneDescription = await translateKoreanToEnglish(sceneDescription);
+                    
+                    const promptParts = [];
+                    if (translatedSceneDescription && translatedSceneDescription.trim() !== '') {
+                        promptParts.push(translatedSceneDescription);
+                    }
+                    if (translatedCharacterPrompt && translatedCharacterPrompt.trim() !== '') {
+                        promptParts.push(`The main character is ${translatedCharacterPrompt}.`);
+                    }
+                    if (allLookKeywords && allLookKeywords.trim() !== '') {
+                        promptParts.push(allLookKeywords);
+                    }
+                    
+                    const finalVideoPrompt = promptParts.join('. ');
+
+                    const sceneTextHTML = `
+                        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                            <h4 class="font-bold text-lg text-indigo-300 mb-2">Scene #${i}</h4>
+                            <p class="text-sm text-gray-300">${finalVideoPrompt}</p>
+                        </div>
+                    `;
+                    textOutputContainer.innerHTML += sceneTextHTML;
+                }
+                
+                resultSection.classList.remove('hidden');
+                resultSection.scrollIntoView();
+
+            } catch (error) {
+                console.error("Error during prompt generation:", error);
+            } finally {
+                btnText.textContent = '최종 프롬프트 생성하기';
+                btnLoader.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        }
+        
+        function showCopyMessage(message, isSuccess) {
+            const messageBox = document.getElementById('copy-message');
+            messageBox.textContent = message;
+            messageBox.style.backgroundColor = isSuccess ? '#2dd4bf' : '#f87171'; // teal-400 or red-400
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        function copyTextPromptsToClipboard() {
+            let allTextPrompts = [];
+            document.querySelectorAll('#text-output p').forEach((p, index) => {
+                 allTextPrompts.push(`SCENE ${index + 1}:\n${p.textContent}`);
+            });
+
+            const combinedText = allTextPrompts.join('\n\n');
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = combinedText;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopyMessage('모든 프롬프트가 클립보드에 복사되었습니다.', true);
+            } catch (err) {
+                console.error('클립보드 복사 실패: ', err);
+                showCopyMessage('클립보드 복사에 실패했습니다.', false);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function resetAll() {
+            document.getElementById('character-sheet').value = '';
+            document.getElementById('total-cuts').value = 1;
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+            appState.lookAndFeel = {};
+            createStoryboard(1);
+            document.getElementById('result-section').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeLookAndFeel();
+            const totalCutsInput = document.getElementById('total-cuts');
+            createStoryboard(parseInt(totalCutsInput.value, 10));
+            totalCutsInput.addEventListener('change', (e) => {
+                const count = parseInt(e.target.value, 10);
+                if (count > 0 && count <= 10) {
+                    createStoryboard(count);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
