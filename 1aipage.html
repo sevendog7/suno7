@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 리소스 및 프롬프트 라이브러리</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 폰트 설정 */
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        /* 다크 모드에 어울리는 프롬프트 카드 스타일 */
+        .prompt-card {
+            background-color: #1e293b; /* slate-800 */
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #334155; /* slate-700 */
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .prompt-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border-color: #a855f7; /* purple-500 */
+        }
+        .prompt-card-content {
+            flex-grow: 1;
+        }
+        /* 다크 모드용 프롬프트 태그 */
+        .prompt-tag {
+            display: inline-block;
+            background-color: #4338ca; /* indigo-700 */
+            color: #e0e7ff; /* indigo-100 */
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white antialiased">
+
+    <!-- 통합 컨테이너 -->
+    <div class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- ==================================================== -->
+        <!-- 파트 1: 생성형 AI 링크 섹션 -->
+        <!-- ==================================================== -->
+        <header class="text-center mb-10 md:mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
+                생성형 AI 리소스 허브
+            </h1>
+            <p class="text-slate-400 text-lg">필수 AI 서비스들과 프롬프트 예시를 한 곳에 모았습니다.</p>
+        </header>
+
+        <section id="ai-links" class="mb-16">
+             <h2 class="text-3xl font-bold text-slate-100 mb-8 text-center">주요 생성형 AI 서비스</h2>
+            <!-- AI 서비스 링크 그리드 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- 챗GPT -->
+                <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">챗GPT</h3><p class="text-slate-400">대화형 AI 챗봇</p></div></a>
+                <!-- 제미나이 -->
+                <a href="https://gemini.google.com/app?hl=ko" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">제미나이 (Gemini)</h3><p class="text-slate-400">Google의 멀티모달 AI</p></div></a>
+                <!-- Perplexity AI -->
+                <a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Perplexity AI</h3><p class="text-slate-400">출처 기반 검색 엔진형 AI</p></div></a>
+                <!-- 클로드 -->
+                <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">클로드 (Claude)</h3><p class="text-slate-400">긴 글 요약 및 분석 특화 AI</p></div></a>
+                <!-- 뤼튼 -->
+                <a href="https://wrtn.ai/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">뤼튼 (Wrtn)</h3><p class="text-slate-400">국내 대표 AI 포털</p></div></a>
+                <!-- 노트북LM -->
+                <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">노트북LM (NotebookLM)</h3><p class="text-slate-400">자료 기반 학습 및 정리 AI</p></div></a>
+                <!-- SUNO -->
+                <a href="https://suno.com/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">SUNO</h3><p class="text-slate-400">AI 음악 및 노래 생성</p></div></a>
+                <!-- Udio -->
+                <a href="https://www.udio.com/home" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Udio</h3><p class="text-slate-400">고품질 AI 음악 생성</p></div></a>
+                <!-- Stable Audio -->
+                <a href="https://stableaudio.com/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Stable Audio</h3><p class="text-slate-400">AI 오디오 및 효과음 생성</p></div></a>
+                <!-- ImageFX -->
+                <a href="https://labs.google/fx/ko/tools/image-fx" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">ImageFX</h3><p class="text-slate-400">Google의 AI 이미지 생성</p></div></a>
+                <!-- Dreamina -->
+                <a href="https://dreamina.capcut.com/ai-tool/home/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Dreamina</h3><p class="text-slate-400">CapCut의 AI 이미지/영상 생성</p></div></a>
+                <!-- 구글 스프레드시트 -->
+                <a href="https://workspace.google.com/intl/ko/products/sheets/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">구글 스프레드시트</h3><p class="text-slate-400">온라인 협업 문서 도구</p></div></a>
+                <!-- 구글 드라이브 -->
+                <a href="https://drive.google.com/drive/home" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">구글 드라이브</h3><p class="text-slate-400">클라우드 저장 및 파일 공유</p></div></a>
+                <!-- Genspark AI -->
+                <a href="https://www.genspark.ai/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Genspark AI</h3><p class="text-slate-400">AI 기반 검색 및 요약</p></div></a>
+                <!-- Skywork AI -->
+                <a href="https://skywork.ai/home" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Skywork AI</h3><p class="text-slate-400">AI 기반 업무 자동화</p></div></a>
+                <!-- ElevenLabs -->
+                <a href="https://elevenlabs.io/app/speech-synthesis/text-to-speech" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">ElevenLabs</h3><p class="text-slate-400">AI 음성 합성 (TTS)</p></div></a>
+                <!-- AI 영상요약 (Lumary) -->
+                <a href="https://lumary.me/en" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">AI 영상요약 (Lumary)</h3><p class="text-slate-400">유튜브 영상 요약 AI</p></div></a>
+                <!-- Lilys AI -->
+                <a href="https://lilys.ai/" target="_blank" rel="noopener noreferrer" class="block group"><div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-purple-500"><h3 class="font-bold text-xl text-slate-100 mb-1">Lilys AI</h3><p class="text-slate-400">AI 기반 콘텐츠 제작 도우미</p></div></a>
+            </div>
+        </section>
+
+        <!-- 구분선 -->
+        <div class="border-b border-slate-700 my-16"></div>
+
+        <!-- ==================================================== -->
+        <!-- 파트 2: 프롬프트 라이브러리 섹션 -->
+        <!-- ==================================================== -->
+        <main>
+            <header class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-slate-100">프롬프트 라이브러리</h2>
+                <p class="text-lg text-slate-400 mt-4">음악, 이미지, AI 챗봇을 위한 프롬프트 모음</p>
+            </header>
+
+            <!-- 음악 생성 프롬프트 -->
+            <section id="music-prompts" class="mb-16">
+                <h3 class="text-3xl font-bold text-slate-200 mb-6 pb-2 border-b-2 border-indigo-500 inline-block">🎵 음악 생성</h3>
+                <div class="prompt-card">
+                    <p class="text-slate-300 leading-relaxed prompt-card-content">
+                        가을날 새로운 사랑을 응원하는 내용으로 노래가사에 어울리는 트렌디한 용어와 라임있는 용어를 일부 사용하고 후크있는 반복 후렴구를 활용해서 감성적인 여성 보컬의 보이스로 피아노가 주가 되는 발라드 감성의 한글 가사 생성해줘
+                    </p>
+                </div>
+            </section>
+
+            <!-- 이미지 생성 프롬프트 -->
+            <section id="image-prompts" class="mb-16">
+                <h3 class="text-3xl font-bold text-slate-200 mb-6 pb-2 border-b-2 border-purple-500 inline-block">🖼️ 이미지 생성</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">판타지 마법사</h4><p class="text-slate-400 text-sm">판타지 캐릭터로 마법사를 디자인하세요. 빛나는 눈을 특징으로 하며, 낡은 로브를 입고 마법 지팡이을 착용하고 있습니다. 배경은 신비로운 숲입니다. 애니메이션 아트 스타일과 보라색과 금색의 색상 팔레트를 사용하여 신비로움과 힘을 전달하세요.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">퇴근을 기다리는 사무실</h4><p class="text-slate-400 text-sm">폐쇄적인 공공기관 사무실에서 일하는 중 퇴근시간만 기다리는 정장 복장의 젊은 남녀 직원들이 시계를 흘끔 바라보는 모습을 귀여운 웹툰 애니메이션 스타일로 그려줘.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">3D 치비 캐릭터</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">사진 속 사람의 얼굴 특징과 표정, 동작을 반영한 입체감있는 3D플라스틱 치비 스타일의 캐릭터로 생성해줘. 배경은 빼고 사람만 생성해줘.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">네컷 만화: 생성형 AI</h4><p class="text-slate-400 text-sm"><b>주제:</b> 생성형 AI 이제는 알아야 한다. <b>배경:</b> 공공기관 사무실. <b>그림체:</b> 현대적 웹툰 스타일, 컬러. <b>폰트:</b> "Nanum Gothic". <b>내용:</b> 1.업무에 찌든 직원들 2.생성형 AI로 업무가 빨라짐을 홍보 3.놀라는 직원들 4.AI를 쓰며 행복해하는 모습.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">미니어쳐 건물</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Make Image Daytime and Isometric [Building Only]</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">치비 캐릭터 스티커 9종</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Create a set of 9 Chibi stickers in a 3x3 grid. Transparent background, 1:1 ratio, Ghibli style. Each sticker must have a unique action/expression (sassy, cute, frantic, etc.) related to office workers and memes. Uniform white outline. No text.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">3D 애니메이션 피규어</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Generate an anime-style figure photo on a desktop, as if taken with a mobile phone. Accurately reproduce the full body, expression, and clothing from the photo in a detailed Japanese anime style.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">3D 픽셀 아이콘</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Take the icon on the right and transform it into a voxel 3D icon like the icons in the left image. Octane render. 8k.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">캐릭터 스티커</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Help me turn the character into a white outline sticker similar to Figure 2. The character needs to be transformed into a web illustration style, and add a playful white outline short phrase describing Figure 1.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">다양한 헤어스타일</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Generate avatars of this person with different hairstyles in a 3x3 grid format.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">흑백 사진 복원</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Restore and colorize this photo.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">일러스트화 4단계</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Generate a four-panel drawing process for the character: Step 1: Line art, Step 2: Flat colors, Step 3: Add shadows, Step 4: Refine and complete. No text.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">캐릭터 현실 배치</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">A realistic photographic work. A gigantic statue of this person has been placed in a square in the center of Tokyo, with people looking up at it.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">증명사진 생성</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Crop the head and create a 2-inch ID photo with: 1. Blue background 2. Professional business attire 3. Frontal face 4. Slight smile.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">캔 디자인 합성</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Apply the design from Image 1 to the can in Image 2, and place it in a minimalist design setting, professional photography.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">만화 스타일 변환</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Convert the input photo into a black-and-white manga-style line drawing.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">미니어쳐 날씨 (서울)</h4><p class="text-slate-400 text-sm">Show a clear 45-degree bird’s-eye view of an isometric miniature city scene of Seoul (N Seoul Tower, Gyeongbok Palace). Weather: cloudy. PBR, realistic lighting. Solid color background. Centered. Display “Seoul Cloudy 20°C” and a cloudy icon at the top.</p></div></div>
+                    <div class="prompt-card"><div class="prompt-card-content"><h4 class="font-semibold text-lg text-slate-100 mb-2">사진의 3D 미니어쳐</h4><span class="prompt-tag">사진첨부</span><p class="text-slate-400 text-sm">Miniature three-dimensional scene presentation using tilt-shift photography techniques, depicting a chibi-style version of a scene from {attached photo}.</p></div></div>
+                </div>
+            </section>
+            
+            <!-- GPT 지침 -->
+            <section id="gpt-instructions" class="mb-16">
+                <h3 class="text-3xl font-bold text-slate-200 mb-6 pb-2 border-b-2 border-green-500 inline-block">🤖 GPT 지침 (예시)</h3>
+                <div class="prompt-card">
+                    <div class="prompt-card-content">
+                        <h4 class="font-semibold text-lg text-slate-100 mb-2">교육행정 전문가 챗봇</h4>
+                        <div class="space-y-4">
+                            <p class="text-slate-300 leading-relaxed p-4 bg-slate-800 rounded-lg border border-slate-700">
+                                <b>[한글 지침]</b><br>
+                                교육행정 업무 전문가가 신규 교육행정직원을 대상으로 공식적이고 명확한 대화스타일로 교육행정 업무에 관해서 답변해주는데, 절대적으로 광주교육행정 관련 자료를 먼저 찾아보고 답변하되, 여기에 없는 자료는 웹에서 찾아서 답변해주는데, 다른 시도교육청의 지침에 의해서 답변하면 안돼. 그럴 경우에는 꼭 출처를 명시해줘. 답변은 먼저 결론, 그다음 구체적 내용, 주의할 점, 법적 근거, 감사사례, 연관된 추가질문 3개로 해줘.
+                            </p>
+                            <p class="text-slate-300 leading-relaxed p-4 bg-slate-800 rounded-lg border border-slate-700">
+                                <b>[영문 지침]</b><br>
+                                An expert in educational administration responds to educational administration work in a formal and clear conversational style to new educational administration staff, and absolutely, look for data related to the Gwangju education administration first and answer, but find data on the web and answer them, but not according to the guidelines of other metropolitan and provincial offices of education. In that case, be sure to specify the source. Please first conclude, then specify the details, points to note, legal basis, audit case, and related additional questions. Make this a chatbot guide.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 기타 유용한 도구 섹션 -->
+            <section id="other-tools" class="mb-16">
+                <h3 class="text-3xl font-bold text-slate-200 mb-6 pb-2 border-b-2 border-cyan-500 inline-block">🛠️ 기타 유용한 도구</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- 직원 검색기 -->
+                    <a href="https://sevendog7.github.io/edu-staff-search/jikweon.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">직원 검색기</h4>
+                            <p class="text-slate-400">교육기관 직원 검색</p>
+                        </div>
+                    </a>
+                    <!-- 보고서 인터뷰 생성기 -->
+                    <a href="https://sevendog7.github.io/realgrowth/bogointer.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">보고서 인터뷰 생성기</h4>
+                            <p class="text-slate-400">보고서 작성을 위한 인터뷰 생성</p>
+                        </div>
+                    </a>
+                    <!-- 대한민국 진짜성장 -->
+                    <a href="https://sevendog7.github.io/realgrowth/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD%20%EC%A7%84%EC%A7%9C%EC%84%B1%EC%9E%A5.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">대한민국 진짜성장</h4>
+                            <p class="text-slate-400">성장 관련 정보</p>
+                        </div>
+                    </a>
+                    <!-- 이재명정부 국정과제 -->
+                    <a href="https://sevendog7.github.io/realgrowth/gukjeong123.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">이재명정부 국정과제</h4>
+                            <p class="text-slate-400">국정과제 아카이브</p>
+                        </div>
+                    </a>
+                    <!-- 이미지 프롬프트 생성기 -->
+                    <a href="https://sevendog7.github.io/suno7/aiimagep.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">이미지 프롬프트 생성기</h4>
+                            <p class="text-slate-400">AI 이미지 프롬프트 제작</p>
+                        </div>
+                    </a>
+                    <!-- SUVO 음악 생성기 -->
+                    <a href="https://sevendog7.github.io/suno7/SUNOaimusic.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">SUNO 음악 생성기</h4>
+                            <p class="text-slate-400">AI 음악 생성 도우미</p>
+                        </div>
+                    </a>
+                    <!-- SORA VEO 영상 생성기 -->
+                    <a href="https://sevendog7.github.io/suno7/soraveo.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">SORA VEO 영상 생성기</h4>
+                            <p class="text-slate-400">AI 영상 프롬프트 제작</p>
+                        </div>
+                    </a>
+                    <!-- 제미나이2.5이미지 생성기 -->
+                    <a href="https://sevendog7.github.io/suno7/gemini2.5flash-image.html" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 h-full transform transition-all duration-300 hover:scale-105 hover:bg-slate-700/70 hover:border-cyan-500">
+                            <h4 class="font-bold text-xl text-slate-100 mb-1">제미나이2.5이미지 생성기</h4>
+                            <p class="text-slate-400">Gemini 2.5 Flash 이미지 생성</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-16 py-6 border-t border-slate-800">
+            <p class="text-slate-500">© 2024 AI Resource & Prompt Library. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
+
+
